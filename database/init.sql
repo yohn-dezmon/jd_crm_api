@@ -11,7 +11,7 @@ CREATE TYPE image_type AS ENUM ('pdf', 'png', 'tiff', 'jpeg', 'gif');
 
 CREATE TABLE platform.sources (
 	id serial NOT NULL,
-	name text,
+	name text NOT NULL,
 	url text,
 	author text,
 	author_url text,
@@ -25,18 +25,17 @@ CREATE TABLE platform.sources (
 CREATE TABLE platform.topics (
 	id serial NOT NULL,
 	topic text NOT NULL,
-	-- is_verified bool NOT NULL DEFAULT FALSE, 
+	is_verified bool NOT NULL DEFAULT FALSE, 
 	brief_description text,
 	full_description text,
-	-- bullet_points text[],
-	-- examples text[],
-	-- parallels text[],
-	-- description_source_id int,
-	-- ai_brief_description text,
-	-- ai_full_description text,
-	-- ai_bullet_points text[],
-	-- ai_parallels text[],
-	-- ai_examples text[],
+	bullet_points text[],
+	examples text[],
+	parallels text[],
+	ai_brief_description text,
+	ai_full_description text,
+	ai_bullet_points text[],
+	ai_parallels text[],
+	ai_examples text[],
 	PRIMARY KEY (id),
 	CONSTRAINT unique_topic UNIQUE(topic)
 );
@@ -50,7 +49,6 @@ CREATE TABLE platform.terms (
 	bullet_points text[],
 	examples text[],
 	parallels text[],
-	description_source_id int,
 	ai_brief_description text,
 	ai_full_description text,
 	ai_bullet_points text[],
@@ -64,6 +62,7 @@ CREATE TABLE platform.terms (
 I defined each question as only corresponding to a single topic.
 If we want to change that, we can set up another bridge table for 
 questions to topics.
+
 query pattern: get all of the questions related to a given topic.
 */
 CREATE TABLE platform.questions (
@@ -85,6 +84,7 @@ CREATE TABLE platform.articles (
 
 /*
 Bridge Table Definitions
+
 Sample query patterns: 
 - get all of the terms for a given topic
 - get all of the topics for a given term
@@ -155,20 +155,17 @@ CREATE TABLE platform.related_topics (
 
 -- we don't need to specify the `id` column bc it is serial 
 -- so it will auto-increment
-INSERT INTO platform.sources (url, media_type) VALUES ('https://www.merriam-webster.com/dictionary/storm', 'web');
-INSERT INTO platform.sources (url, media_type) VALUES ('https://en.wikipedia.org/wiki/Tropical_cyclone', 'web');
-INSERT INTO platform.sources (url, media_type) VALUES ('https://en.wikipedia.org/wiki/Atlantic_hurricane', 'web');
+INSERT INTO platform.sources (name, url, media_type, ai_generated) VALUES ('dictionary storm', 'https://www.merriam-webster.com/dictionary/storm', 'web', 'false');
+INSERT INTO platform.sources (name, url, media_type, ai_generated) VALUES ('wikipedia tropical cyclone', 'https://en.wikipedia.org/wiki/Tropical_cyclone', 'web', 'false');
+INSERT INTO platform.sources (name, url, media_type, ai_generated) VALUES ('wikipedia atlantic hurricane', 'https://en.wikipedia.org/wiki/Atlantic_hurricane', 'web', 'false');
 
 INSERT INTO platform.topics (topic, brief_description) VALUES ('Hurricane', 'a tropical cyclone that forms in the Atlantic Ocean, primarily between the months of June and November.');
 
 INSERT INTO platform.terms (term, brief_description) VALUES ('Storm', 'a disturbance of the atmosphere marked by wind and usually by rain, snow, hail, sleet, or thunder and lightning');
 INSERT INTO platform.terms (term, brief_description) VALUES ('Tropical Cycle', 'a rapidly rotating storm system characterized by a low-pressure center, a closed low-level atmospheric circulation, strong winds, and a spiral arrangement of thunderstorms that produce heavy rain and squalls.');
 
-
 /*
-For now we manually need to update the bridge table.
-When we create an endpoint to create new topics/terms/sources, logic should be included to additionally update these 
-bridge tables.
+Manually updating the link tables, this can be done via methods in the code now.
 */
 INSERT INTO platform.terms_to_sources (term_id, source_id) VALUES (1, 1), (2, 2);
 INSERT INTO platform.topics_to_sources (topic_id, source_id) VALUES (1, 3);
