@@ -2,14 +2,14 @@ version: "3.9"
 services:
   database:
     container_name: db
-    image: postgres:latest 
-    volumes: 
+    image: postgres:latest
+    volumes:
       - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
     env_file:
-    # you can set the POSTGRES_PASSWORD env var in the .env
+      # you can set the POSTGRES_PASSWORD env var in the .env
       - .env
     ports:
-     - 5432:5432
+      - 5432:5432
     healthcheck:
       test: psql -U postgres -q -d postgres -c "SELECT 'ready';"
       interval: 10s
